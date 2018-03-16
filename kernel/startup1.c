@@ -6,6 +6,8 @@
 #include <api/prog_info123.h>
 #include <types/io4.h>
 #include <kernel/errno4200.h>
+#include <kernel/kprint22.h>
+#include <api/prog_info123.h>
 
 /*! kernel stack */
 uint8 system_stack [ STACK_SIZE ];

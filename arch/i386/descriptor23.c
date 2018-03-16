@@ -4,6 +4,7 @@
 #include "descriptor32.h"
 
 #include <kernel/errno4200.h>
+#include <kernel/kprint22.h>
 
 /*! memory for GDT - Global Descriptor Table */
 static GDT_t gdt[] =

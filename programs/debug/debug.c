@@ -4,6 +4,7 @@
 #include <api/prog_info123.h>
 #include <api/errno4200.h>
 #include <kernel/errno4200.h>
+#include <kernel/kprint22.h>
 
 static int inc ( int n )
 {
