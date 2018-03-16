@@ -6,6 +6,7 @@
 #include <api/prog_info.h>
 #include <types/io.h>
 #include <kernel/errno.h>
+#include <kernel/net.h>
 
 /*! kernel stack */
 uint8 system_stack [ STACK_SIZE ];
@@ -38,6 +39,8 @@ void k_startup ()
 	/* start desired program(s) */
 	hello_world ();
 	debug ();
+    net_init ("PREFIX0000000000000111111111");
+    net_test ();
 
 	kprintf ( "\nSystem halted!\n" );
 	halt ();
