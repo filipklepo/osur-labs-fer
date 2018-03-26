@@ -5,7 +5,7 @@
 #include <arch/multiboot.h>
 
 /* stack, startup function */
-.extern stack_top_addr, k_startup, arch_descriptors_init
+.extern stack_top_addr, k_startup, arch_descriptors_init, copy_to_RAM
 
 .section .text
 
@@ -33,6 +33,8 @@ arch_startup:
 	/* starting status register - EFLAGS register */
 	pushl	$0
 	popf
+
+    call copy_to_RAM
 
 	/* set up GDT, IDT */
 	call	arch_descriptors_init
