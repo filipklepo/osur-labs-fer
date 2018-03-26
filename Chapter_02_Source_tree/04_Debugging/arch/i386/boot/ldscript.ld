@@ -5,40 +5,46 @@
 ENTRY(arch_startup)
 
 SECTIONS {
-	.code LOAD_ADDR :
-	{
-		kernel_code_addr = .;
+    .boot_code MOVE_ADDR :
+    {
+        *?/boot/startup.asm.o ( * )
+        *?/boot/copy.o ( * )
+    }
+    
+    kernel_code_LMA = MOVE_ADDR + SIZEOF( .boot_code );
+    
+    .kernel_code kernel_code_LMA :
+    {
+        kernel_code_addr = .;
+        *( .text* )
+    }
+    
+    data_LMA = kernel_code_LMA + SIZEOF( .kernel_code );
+    
+    .data data_LMA :
+    {
+        *( .rodata* .data* )
+    }
+    
+    bss_LMA = data_LMA + SIZEOF( .data );
+    
+    .bss bss_LMA :
+    {
+        *( .bss* COMMON* )
+        . = ALIGN (4096);
+    }
 
-		/* instructions */
-		*?/boot/startup.asm.o ( .text* )
+    kernel_end_LMA = .;
 
-		*( .text* )
-	}
-	.data :
-	{
-		kernel_data_addr = .;
+    /* Program, I think, should work without line below */
+    stack_start_addr = STACK_ADDR - STACK_SIZE;
+    stack_top_addr = STACK_ADDR;
 
-		/* read only data (constants), initialized global variables */
-		* ( .rodata* .data* )
-	}
-	.bss :
-	{
-		*( .bss* COMMON* )
-
-		. = ALIGN (4096);
-	}
-
-	/*
-	 * what with other sections generated with gcc (various versions)?
-	 * if optimizing for size discard them with: /DISCARD/ : { *(*) }
-	 * if debugging with qemu/gdb they must be included
-	 * - they can be included implicitly, without declaring them here
-	 * - but they will be put behind "kernel_end_addr" so its best to use
-	 *   multiboot loader (QEMU is that)
-	 */
+    /DISCARD/ : { *(.eh_frame*) } 
 
 #ifndef DEBUG
-	/DISCARD/ : { *(*) }
+    /DISCARD/ : { *(*) } 
 #endif
-	kernel_end_addr = .;
+    kernel_end_addr = .;
 }
+

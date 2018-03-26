@@ -8,7 +8,7 @@
 #include <kernel/errno.h>
 
 /*! kernel stack */
-uint8 system_stack [ STACK_SIZE ];
+uint8 *system_stack = (uint8 *)STACK_ADDR;
 
 char system_info[] = 	OS_NAME ": " NAME_MAJOR ":" NAME_MINOR ", "
 			"Version: " VERSION " (" ARCH ")";
@@ -24,7 +24,7 @@ void k_startup ()
 	/* set initial stdout */
 	k_stdout = &K_INITIAL_STDOUT;
 	k_stdout->init (0);
-
+ 
 	/*! start with regular initialization */
 
 	/* switch to default 'stdout' for kernel */

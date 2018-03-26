@@ -34,6 +34,7 @@ int debug ()
 #if 1	/* compile with 'debug=yes' and without */
 	LOG ( WARN, "This is log entry with WARN relevance" );
 	LOG ( INFO, "Address of 'a' is %x", &a );
+    LOG ( INFO, "Address of function 'debug' is %x", &debug);
 
 	ASSERT_ERRNO_AND_RETURN ( TRUE, EINVAL );
 

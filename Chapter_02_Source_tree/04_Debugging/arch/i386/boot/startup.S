@@ -5,7 +5,7 @@
 #include <arch/multiboot.h>
 
 /* stack, startup function */
-.extern system_stack, k_startup, arch_descriptors_init
+.extern stack_top_addr, k_startup, arch_descriptors_init
 
 .section .text
 
@@ -27,7 +27,8 @@ multiboot_header:
 /* THE starting point */
 arch_startup:
 	/* stack pointer initialization */
-	mov	$(system_stack + STACK_SIZE), %esp
+	mov	$(stack_top_addr), %esp
+	//mov	0x400000, %esp
 
 	/* starting status register - EFLAGS register */
 	pushl	$0

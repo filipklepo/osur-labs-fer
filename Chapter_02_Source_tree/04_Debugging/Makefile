@@ -32,9 +32,11 @@ CMACROS += $(DEVICES) 							\
 #------------------------------------------------------------------------------
 # Misc
 
-CMACROS += SYSTEM_MEMORY=$(SYSTEM_MEMORY)				\
+CMACROS += SYSTEM_MEMORY=$(SYSTEM_MEMORY)		\
 	STACK_SIZE=$(STACK_SIZE)					\
-	LOAD_ADDR=$(LOAD_ADDR)
+	LOAD_ADDR=$(LOAD_ADDR)						\
+	MOVE_ADDR=$(MOVE_ADDR)						\
+	STACK_ADDR=$(STACK_ADDR)
 
 #------------------------------------------------------------------------------
 
