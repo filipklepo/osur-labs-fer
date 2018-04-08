@@ -9,24 +9,16 @@ SECTIONS {
     {
         *?/boot/startup.asm.o ( * )
         *?/boot/copy.o ( * )
-    }
-    
-    kernel_code_LMA = LOAD_ADDR + SIZEOF( .boot_code );
-    kernel_code_VMA = MOVE_ADDR;
-    
-    .kernel_code kernel_code_VMA : AT (kernel_code_LMA)
-    {
-        kernel_code_addr = .;
         *( .text* )
+        *( .rodata* )
     }
     
-    kernel_code_size = SIZEOF( .kernel_code );
-    data_LMA = kernel_code_LMA + kernel_code_size;
-    data_VMA = kernel_code_VMA + kernel_code_size;
+    data_LMA = LOAD_ADDR + SIZEOF( .boot_code );
+    data_VMA = MOVE_ADDR;
     
     .data data_VMA : AT (data_LMA)
     {
-        *( .rodata* .data* )
+        *( .data* )
     }
     
     data_size = SIZEOF ( .data );
