@@ -8,6 +8,7 @@ int hello_world ();
 int timer ();
 int keyboard ();
 int segm_fault ();
+void m_alloc_test ();
 
 #define	hello_world_PROG_HELP	"Print 'Hello world'."
 #define	timer_PROG_HELP		"Timer interface demonstration: "	\
