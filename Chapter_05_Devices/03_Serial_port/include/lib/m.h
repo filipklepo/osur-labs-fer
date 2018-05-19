@@ -1,8 +1,8 @@
 #pragma once
 
-#define INCREMENT 16
-#define LOG_2_INCREMENT 4
-#define N (32 - LOG_2_INCREMENT)
+#define INCREMENT 64
+#define LOG2_INCR 6
+#define N (32 - LOG2_INCR)
 
 #ifdef MEM_TEST
 #include "test/test.h"
@@ -78,4 +78,4 @@ int m_free ( m_mpool_t *mpool, void *chunk_to_be_freed );
 static void m_remove_chunk ( m_mpool_t *mpool, m_hdr_t *chunk );
 static void m_insert_chunk ( m_mpool_t *mpool, m_hdr_t *chunk );
 
-#endif /* _FF_SIMPLE_C_ */
+#endif
