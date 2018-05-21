@@ -7,13 +7,11 @@
 #include <kernel/errno.h>
 #include <lib/list.h>
 #include <kernel/memory.h>
+#include <kernel/kprint.h>
 
 /*! Interrupt controller device */
 extern arch_ic_t IC_DEV;
 static arch_ic_t *icdev = &IC_DEV;
-
-/*! interrupt handlers */
-static list_t ihandlers[INTERRUPTS];
 
 struct ihndlr
 {
@@ -22,6 +20,26 @@ struct ihndlr
 
 	list_h list;
 };
+
+struct prio_irq {
+	void *device;
+	int irq_num;
+	int prio;
+	uint8 is_processed;
+	int (*ihandler) ( unsigned int, void *device );
+};
+
+/* Used for list_t's priority-queue-like behaviour */
+int cmp_by_prio ( void *fst, void *snd) {
+	struct prio_irq *fst_prio_rq = fst, *snd_prio_rq = snd;
+	return snd_prio_rq->prio - fst_prio_rq->prio;
+}
+
+/*! interrupt handlers */
+static list_t ihandlers[INTERRUPTS];
+/* priority for each irq_num*/
+static int prio[INTERRUPTS];
+static list_t prio_requests;
 
 /*! Initialize interrupt subsystem (in 'arch' layer) */
 void arch_init_interrupts ()
@@ -32,6 +50,11 @@ void arch_init_interrupts ()
 
 	for ( i = 0; i < INTERRUPTS; i++ )
 		list_init ( &ihandlers[i] );
+
+	for (i = 0; i < INTERRUPTS; i++ )
+		prio[i] = INTERRUPTS - 1 - i;
+
+	list_init( &prio_requests );
 }
 
 /*!
@@ -97,6 +120,8 @@ void arch_unregister_interrupt_handler ( unsigned int irq_num, void *handler,
 void arch_interrupt_handler ( int irq_num )
 {
 	struct ihndlr *ih;
+	struct prio_irq *pi;
+	list_h *pi_lh;
 
 	if ( irq_num < INTERRUPTS && (ih = list_get (&ihandlers[irq_num], FIRST)) )
 	{
@@ -108,9 +133,32 @@ void arch_interrupt_handler ( int irq_num )
 		/* Call registered handlers */
 		while ( ih )
 		{
-			ih->ihandler ( irq_num, ih->device );
+			//OLD: ih->ihandler ( irq_num, ih->device );
+			pi = kmalloc( sizeof( struct prio_irq ) );
+			pi_lh = kmalloc(sizeof( list_h ) );
+
+			ASSERT( pi );
+			ASSERT( pi_lh );
+			pi->device = ih->device;
+			pi->irq_num = irq_num;
+			pi->prio = prio[irq_num];
+			pi->is_processed = 0;
+			pi->ihandler = ih->ihandler;
+			list_sort_add(&prio_requests, pi, pi_lh, &cmp_by_prio);
 
 			ih = list_get_next ( &ih->list );
+		}
+
+		pi = list_get(&prio_requests, FIRST);
+		while ( pi && !pi->is_processed )
+		{
+			pi->is_processed = 1;
+			enable_interrupts();
+			pi->ihandler ( pi->irq_num, pi->device );
+            disable_interrupts();
+            list_remove(&prio_requests, FIRST, NULL);
+			kfree( pi );
+			pi = list_get(&prio_requests, FIRST);
 		}
 	}
 
