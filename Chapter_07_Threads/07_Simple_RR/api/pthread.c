@@ -219,6 +219,12 @@ int pthread_barrier_wait ( pthread_barrier_t *barrier )
 	return sys__pthread_barrier_wait ( barrier );
 }
 
+int pthread_barrier_trywait ( pthread_barrier_t *barrier )
+{
+	ASSERT_ERRNO_AND_RETURN( barrier, EINVAL );
+	return sys__pthread_barrier_trywait ( barrier );
+}
+
 /*! Message queue */
 mqd_t mq_open ( char *name, int oflag, mode_t mode, struct mq_attr *attr )
 {

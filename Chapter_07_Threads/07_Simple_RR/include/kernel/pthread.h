@@ -33,6 +33,7 @@ int sys__sem_post ( sem_t *sem );
 int sys__pthread_barrier_init ( pthread_barrier_t *barrier, const pthread_barrierattr_t *attr, uint count );
 int sys__pthread_barrier_destroy ( pthread_barrier_t *barrier );
 int sys__pthread_barrier_wait ( pthread_barrier_t *barrier );
+int sys__pthread_barrier_trywait ( pthread_barrier_t *barrier );
 
 int sys__mq_open ( char *name, int oflag, mode_t mode, mq_attr_t *attr,
 		   mqd_t *mqdes );

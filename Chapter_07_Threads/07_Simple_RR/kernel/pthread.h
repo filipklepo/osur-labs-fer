@@ -79,6 +79,8 @@ typedef struct _kpthread_barrier_t_
     int	    bar_value;
     /* current semaphore value */
 
+    int	    init_value;
+
     uint	    flags;
     /* various flags */
 

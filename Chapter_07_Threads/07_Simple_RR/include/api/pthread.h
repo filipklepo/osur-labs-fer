@@ -54,6 +54,7 @@ int sem_wait ( sem_t *sem );
 int pthread_barrier_init ( pthread_barrier_t *barrier, const pthread_barrierattr_t *attr, uint count );
 int pthread_barrier_destroy ( pthread_barrier_t *barrier );
 int pthread_barrier_wait ( pthread_barrier_t *barrier );
+int pthread_barrier_trywait ( pthread_barrier_t *barrier );
 
 /*! Message queue */
 mqd_t mq_open ( char *name, int oflag, mode_t mode, struct mq_attr *attr );
