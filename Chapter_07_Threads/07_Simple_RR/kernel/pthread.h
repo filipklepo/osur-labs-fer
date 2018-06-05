@@ -69,6 +69,26 @@ typedef struct _ksem_t_
 }
 ksem_t;
 
+/*! Barrier -------------------------------------------------------------- */
+
+typedef struct _kpthread_barrier_t_
+{
+    id_t	    id;
+    /* system level id */
+
+    int	    bar_value;
+    /* current semaphore value */
+
+    uint	    flags;
+    /* various flags */
+
+    uint	    ref_cnt;
+    /* various flags */
+
+    kthread_q   queue;
+    /* queue for blocked threads */
+}
+kpthread_barrier_t;
 
 /*! Messages ---------------------------------------------------------------- */
 

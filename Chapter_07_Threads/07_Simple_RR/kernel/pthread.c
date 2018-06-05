@@ -742,6 +742,98 @@ int sys__sem_post ( sem_t *sem )
 	SYS_EXIT ( kthread_get_errno(NULL), kthread_get_syscall_retval(NULL) );
 }
 
+/*! Barrier ------------------------------------------------------------------ */
+
+int sys__pthread_barrier_init ( pthread_barrier_t *barrier, const pthread_barrierattr_t *attr, uint count )
+{
+    kpthread_barrier_t *kbar;
+    kobject_t *kobj;
+
+    SYS_ENTRY();
+
+    ASSERT_ERRNO_AND_EXIT ( barrier, EINVAL );
+
+    kobj = kmalloc_kobject ( sizeof (kpthread_barrier_t) );
+    ASSERT_ERRNO_AND_EXIT ( kobj, ENOMEM );
+    kbar = kobj->kobject;
+
+    kbar->id = k_new_id ();
+    kbar->bar_value = count;
+    kbar->flags = 0;
+    kbar->ref_cnt = 1;
+    kthreadq_init ( &kbar->queue );
+
+    barrier->ptr = kobj;
+    barrier->id = kbar->id;
+
+    SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
+}
+
+int sys__pthread_barrier_destroy ( pthread_barrier_t *barrier )
+{
+    kpthread_barrier_t *kbar;
+    kobject_t *kobj;
+
+    SYS_ENTRY();
+
+    ASSERT_ERRNO_AND_EXIT ( barrier, EINVAL );
+
+    kobj = barrier->ptr;
+    ASSERT_ERRNO_AND_EXIT ( kobj, EINVAL );
+    ASSERT_ERRNO_AND_EXIT ( list_find ( &kobjects, &kobj->list ),
+                            EINVAL );
+    kbar = kobj->kobject;
+    ASSERT_ERRNO_AND_EXIT ( kbar && kbar->id == barrier->id, EINVAL );
+
+    ASSERT_ERRNO_AND_EXIT (kthreadq_get (&kbar->queue) == NULL, ENOTEMPTY);
+
+    kbar->ref_cnt--;
+
+    /* If barrier is shared leave it! */
+    if ( kbar->ref_cnt )
+        SYS_EXIT ( EBUSY, EXIT_FAILURE );
+
+    kfree_kobject ( kobj );
+
+    barrier->ptr = NULL;
+    barrier->id = 0;
+
+    SYS_EXIT ( EXIT_SUCCESS, EXIT_SUCCESS );
+}
+
+int sys__pthread_barrier_wait ( pthread_barrier_t *barrier )
+{
+	kpthread_barrier_t *kbar;
+    kobject_t *kobj;
+    kthread_t *kthread;
+
+    SYS_ENTRY();
+
+    ASSERT_ERRNO_AND_EXIT ( barrier, EINVAL );
+
+    kthread = kthread_get_active ();
+
+    kobj = barrier->ptr;
+    ASSERT_ERRNO_AND_EXIT ( kobj, EINVAL );
+    ASSERT_ERRNO_AND_EXIT ( list_find ( &kobjects, &kobj->list ),
+                            EINVAL );
+    kbar = kobj->kobject;
+    ASSERT_ERRNO_AND_EXIT ( kbar && kbar->id == barrier->id, EINVAL );
+
+    kthread_set_errno ( kthread, EXIT_SUCCESS );
+    kthread_set_syscall_retval ( kthread, EXIT_SUCCESS );
+
+    kbar->bar_value--;
+    kthread_enqueue ( kthread, &kbar->queue, 1, NULL, NULL );
+    if ( kbar->bar_value <= 0 )
+    {
+        kthreadq_release_all ( &kbar->queue );
+    }
+    kthreads_schedule ();
+
+    SYS_EXIT ( kthread_get_errno(NULL), kthread_get_syscall_retval(NULL) );
+}
+
 /*! Messages ---------------------------------------------------------------- */
 
 /* list of message queues */

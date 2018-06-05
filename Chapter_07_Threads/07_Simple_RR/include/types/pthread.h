@@ -62,6 +62,15 @@ typedef uint pthread_condattr_t;
 /*! Semaphore */
 typedef descriptor_t sem_t;
 
+/*! Barrier */
+typedef descriptor_t pthread_barrier_t;
+
+typedef struct pthread_barrierattr
+{
+	uint 	flags;
+}
+pthread_barrierattr_t;
+
 /*! Message queue */
 typedef descriptor_t mqd_t;
 
